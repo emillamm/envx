@@ -1,0 +1,40 @@
+name: Publish
+
+on:
+  push:
+    branches:
+    - main
+    paths-ignore:
+    - '**/*.md'
+    - 'LICENSE'
+
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: 'write'
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - id: get-version
+      name: Compute next version based on previous tag in commit history
+      uses: ietf-tools/semver-action@v1
+      with:
+        token: ${{ github.token }}
+        branch: main
+        noVersionBumpBehavior: patch
+
+    - name: Create github tag
+      uses: actions/github-script@v6
+      with:
+        script: |
+          github.rest.git.createRef({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: "refs/tags/${{ steps.get-version.outputs.next }}",
+            sha: context.sha
+          })
+
