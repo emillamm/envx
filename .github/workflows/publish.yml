@@ -19,6 +19,16 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Setup Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.18'
+
+    - name: Install dependencies
+      run: go get .
+
+    - name: Run tests
+      run: go test .
     - id: get-version
       name: Compute next version based on previous tag in commit history
       uses: ietf-tools/semver-action@v1
