@@ -12,7 +12,7 @@ func testGetenv[T comparable](
 	t.Helper()
 
 	var err error
-	var value T = getenvFunc(name, Error[T](&err))
+	var value T = getenvFunc(name, Intercept[T](&err))
 
 	if err != expectedError {
 		t.Errorf("unenexpected error for %s: got %#v, want %#v", name, err, expectedError)
