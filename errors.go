@@ -1,21 +1,18 @@
 package envx
 
-import "fmt"
-
-type EmptyValueError struct {
-	Name string
-}
+type EmptyValueError struct {}
 
 func (e *EmptyValueError) Error() string {
-	return fmt.Sprintf("environment variable %s does not exist", e.Name)
+	return "environment variable does not exist"
 }
 
-type InvalidValueTypeError struct {
-	Name string
-	Type string
-}
+type InvalidValueTypeError struct {}
 
 func (e *InvalidValueTypeError) Error() string {
-	return fmt.Sprintf("environment variable %s could not be converted to type %s", e.Name, e.Type)
+	return "environment variable could not be converted to expected type"
 }
+
+var ErrInvalidType = &InvalidValueTypeError{}
+
+var ErrEmptyValue = &EmptyValueError{}
 
