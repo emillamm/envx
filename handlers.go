@@ -2,7 +2,7 @@ package envx
 
 // return default value on error ErrEmptyValue, i.e. if the given variable doesn't exists
 func Default[T comparable](defaultValue T) EnvXHandler[T] {
-	return func(v T, err error) (T, error) {
+	return func(name string, v T, err error) (T, error) {
 		if err == ErrEmptyValue {
 			return defaultValue, nil
 		}
@@ -11,8 +11,8 @@ func Default[T comparable](defaultValue T) EnvXHandler[T] {
 }
 
 // set error only if an error wasn't previously set (i.e. pointer is nil), otherwise no-op
-func Error[T comparable](ptr *error) EnvXHandler[T] {
-	return func(v T, err error) (T, error) {
+func Intercept[T comparable](ptr *error) EnvXHandler[T] {
+	return func(name string, v T, err error) (T, error) {
 		if err != nil && *ptr == nil {
 			*ptr = err
 		}
@@ -20,9 +20,23 @@ func Error[T comparable](ptr *error) EnvXHandler[T] {
 	}
 }
 
+func Observe[T comparable](ptr *Errors) EnvXHandler[T] {
+	return func(name string, v T, err error) (T, error) {
+		if err != nil {
+			wrapped := WrapError(err, name, v)
+			if *ptr == nil {
+				*ptr = []Error{wrapped}
+			} else {
+				*ptr = append(*ptr, wrapped)
+			}
+		}
+		return v, err
+	}
+}
+
 // panic on any error (including if the variable doesn't exist)
 func Panic[T comparable]() EnvXHandler[T] {
-	return func(v T, err error) (T, error) {
+	return func(name string, v T, err error) (T, error) {
 		if err != nil {
 			panic(err)
 		}

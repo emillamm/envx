@@ -8,36 +8,63 @@ import (
 func TestHandlers(t *testing.T) {
 
 	t.Run("Default should return a default value if a variable doesn't exist and unset the error" , func(t *testing.T) {
-		if v, err := Default[string]("bar")("", ErrEmptyValue); v != "bar" || err != nil {
+		if v, err := Default[string]("bar")("FOO", "", ErrEmptyValue); v != "bar" || err != nil {
 			t.Errorf("unenexpected value/error: got ('%s','%#v'), want ('bar','nil')", v, err)
 		}
 	})
 	t.Run("Default should return existing value if a variable already exist leave the error unchanged" , func(t *testing.T) {
-		if v, err := Default[string]("bar")("foo", nil); v != "foo" || err != nil {
+		if v, err := Default[string]("bar")("FOO", "foo", nil); v != "foo" || err != nil {
 			t.Errorf("unenexpected value/error: got ('%s','%#v'), want ('bar','nil')", v, err)
 		}
 		someError := errors.New("some error")
-		if v, err := Default[string]("bar")("foo", someError); v != "foo" || err != someError {
+		if v, err := Default[string]("bar")("FOO", "foo", someError); v != "foo" || err != someError {
 			t.Errorf("unenexpected value/error: got ('%s','%#v'), want ('foo','nil')", v, err)
 		}
 	})
 
-	t.Run("Error should point to the provided error if the pointer is empty" , func(t *testing.T) {
+	t.Run("Intercept should point to the provided error if the pointer is empty" , func(t *testing.T) {
 		var errPtr error
-		v, err := Error[string](&errPtr)("foo", ErrEmptyValue)
+		v, err := Intercept[string](&errPtr)("FOO", "foo", ErrEmptyValue)
 
 		if v != "foo" || err != ErrEmptyValue || errPtr != ErrEmptyValue {
 			t.Errorf("unenexpected value/error: got ('%s','%#v','%#v'), want ('foo','ErrEmptyValue','ErrEmptyValue')", v, err, errPtr)
 		}
 	})
-	t.Run("Error should not point to the provided error if the pointer is already pointing to another error" , func(t *testing.T) {
+	t.Run("Intercept should not point to the provided error if the pointer is already pointing to another error" , func(t *testing.T) {
 		var someError error = errors.New("some error")
 		var errPtr error = someError
-		v, err := Error[string](&errPtr)("foo", ErrEmptyValue)
+		v, err := Intercept[string](&errPtr)("FOO", "foo", ErrEmptyValue)
 
 		if v != "foo" || err != ErrEmptyValue || errPtr != someError {
 			t.Errorf("unenexpected value/error: got ('%s','%#v','%#v'), want ('foo','ErrEmptyValue','ErrEmptyValue')", v, err, errPtr)
 		}
+	})
+
+	t.Run("Observe should append errors to the provided array pointer" , func(t *testing.T) {
+		var errs Errors
+		Observe[string](&errs)("FOO", "foo", ErrEmptyValue)
+		Observe[int](&errs)("BAR", 0, ErrInvalidType)
+
+		if len(errs) != 2 {
+			t.Errorf("expected 3 errors, got %d", len(errs))
+			return
+		}
+
+		var checkError = func(index int, name string, valueType string, err error) {
+			e := errs[index]
+			if e.Name != name {
+				t.Errorf("invalid name at index %d: got %s, want %s", index, e.Name, name)
+			}
+			if e.Type != valueType {
+				t.Errorf("invalid type at index %d: got %s, want %s", index, e.Type, valueType)
+			}
+			if e.Err != err {
+				t.Errorf("invalid error at index %d: got %#v, want %#v", index, e.Err, err)
+			}
+		}
+
+		checkError(0, "FOO", "string", ErrEmptyValue)
+		checkError(1, "BAR", "int", ErrInvalidType)
 	})
 
 	t.Run("Panic should panic if any error is provided" , func(t *testing.T) {
@@ -46,7 +73,7 @@ func TestHandlers(t *testing.T) {
 				t.Errorf("expected a panic")
 			}
 		}()
-		Panic[string]()("foo", ErrEmptyValue)
+		Panic[string]()("FOO", "foo", ErrEmptyValue)
 	})
 	t.Run("Panic should not panic if no error is provided" , func(t *testing.T) {
 		defer func() {
@@ -54,7 +81,7 @@ func TestHandlers(t *testing.T) {
 				t.Errorf("expected no panic")
 			}
 		}()
-		v, err := Panic[string]()("foo", nil)
+		v, err := Panic[string]()("FOO", "foo", nil)
 		if v != "foo" || err != nil {
 			t.Errorf("unenexpected value/error: got ('%s','%#v'), want ('foo','nil')", v, err)
 		}

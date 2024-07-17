@@ -4,12 +4,12 @@ type EnvX func(string)string
 
 type EnvXAny[T comparable] func(string)(T, error)
 
-type EnvXHandler[T comparable] func(T, error) (T, error)
+type EnvXHandler[T comparable] func(string, T, error) (T, error)
 
 func (env EnvXAny[T]) Getenv(name string, handlers ...EnvXHandler[T]) T {
 	v, err := env(name)
 	for _, handler := range handlers {
-		v, err = handler(v, err)
+		v, err = handler(name, v, err)
 	}
 	return v
 }
