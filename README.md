@@ -1,8 +1,7 @@
 # EnvX
-Envx is a tiny go library that aims to make your life a little easier when consuming environment variables in your go programs. 
+Envx is a lightweight Go module that simplifies consuming environment variables in your go programs.
 
-It extends the `func(string)string` signature with helper methods so you can continue using `os.Getenv` the way you are used to in your workflow. 
+It extends the `func(string)string` signature with helper methods and allows you to work directly with `os.Getenv` in your code while reducing common boilerplate code for handling errors, defaults and outputting non-string types.
 
-It helps you reduce common boilerplate code for handling errors, defaults and converting to other primitive types. 
+## Usage
 
-It only uses pure functions and generics (no reflection) and requires no initialization. 
