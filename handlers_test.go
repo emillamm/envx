@@ -45,13 +45,13 @@ func TestHandlers(t *testing.T) {
 		Observe[string](&errs)("FOO", "foo", ErrEmptyValue)
 		Observe[int](&errs)("BAR", 0, ErrInvalidType)
 
-		if len(errs) != 2 {
-			t.Errorf("expected 3 errors, got %d", len(errs))
+		if len(errs.Observed) != 2 {
+			t.Errorf("expected 3 errors, got %d", len(errs.Observed))
 			return
 		}
 
 		var checkError = func(index int, name string, valueType string, err error) {
-			e := errs[index]
+			e := errs.Observed[index]
 			if e.Name != name {
 				t.Errorf("invalid name at index %d: got %s, want %s", index, e.Name, name)
 			}

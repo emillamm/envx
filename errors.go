@@ -28,13 +28,15 @@ func (e *Error) Unwrap() error { return e.Err }
 
 
 // Errors - special error that represents an aggregation of multiple Error
-type Errors []Error
+type Errors struct {
+	Observed []Error
+}
 
-func (e Errors) Error() string {
+func (e *Errors) Error() string {
 	var b strings.Builder
-	if len(e) > 0 {
-		b.WriteString(fmt.Sprintf("Unable to read %d environment variable(s):", len(e)))
-		for _, err := range e {
+	if len(e.Observed) > 0 {
+		b.WriteString(fmt.Sprintf("Unable to read %d environment variable(s):", len(e.Observed)))
+		for _, err := range e.Observed {
 			b.WriteString("\n")
 			b.WriteString(err.Error())
 		}

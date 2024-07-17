@@ -24,10 +24,10 @@ func Observe[T comparable](ptr *Errors) EnvXHandler[T] {
 	return func(name string, v T, err error) (T, error) {
 		if err != nil {
 			wrapped := WrapError(err, name, v)
-			if *ptr == nil {
-				*ptr = []Error{wrapped}
+			if ptr == nil {
+				*ptr = Errors{[]Error{wrapped}}
 			} else {
-				*ptr = append(*ptr, wrapped)
+				ptr.Observed = append(ptr.Observed, wrapped)
 			}
 		}
 		return v, err

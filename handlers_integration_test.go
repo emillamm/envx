@@ -45,8 +45,8 @@ func TestHandlersIntegration(t *testing.T) {
 		if v := env.AsInt().Getenv("QUX", Observe[int](&errs)); v != 0 {
 			t.Errorf("got %d, want 0", v)
 		}
-		if len(errs) != 2 {
-			t.Errorf("wrong number of errors: got %d, want 2", len(errs))
+		if len(errs.Observed) != 2 {
+			t.Errorf("wrong number of errors: got %d, want 2", len(errs.Observed))
 		}
 	})
 }
