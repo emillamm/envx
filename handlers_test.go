@@ -65,6 +65,11 @@ func TestHandlers(t *testing.T) {
 
 		checkError(0, "FOO", "string", ErrEmptyValue)
 		checkError(1, "BAR", "int", ErrInvalidType)
+
+		var err error = errs.Error()
+		if err == nil {
+			t.Errorf("err should not be nil")
+		}
 	})
 
 	t.Run("Panic should panic if any error is provided" , func(t *testing.T) {
