@@ -1,7 +1,14 @@
 package envx
+
+func (env EnvX) String(name string) *Value[string] {
+	return getValue[string](name, env, func(s string) (string, error) {
+		return s, nil
+	})
+}
+
 //
 //func (env EnvX) AsString() EnvXAny[string] {
-//	return as[string](env, func(value string) (string, error) {
+//	return getValue[string](env, func(value string) (string, error) {
 //		return value, nil
 //	})
 //}

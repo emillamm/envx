@@ -1,10 +1,10 @@
 package envx
 
-//import "time"
-//
-//func (env EnvX) AsTime(layout string) EnvXAny[time.Time] {
-//	return as[time.Time](env, func(s string) (time.Time, error) {
-//		return time.Parse(layout, s)
-//	})
-//}
-//
+import "time"
+
+func (env EnvX) Time(name string, layout string) *Value[time.Time] {
+	return getValue[time.Time](name, env, func(s string) (time.Time, error) {
+		return time.Parse(layout, s)
+	})
+}
+
