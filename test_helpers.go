@@ -28,8 +28,6 @@ func testGetenvWithEqualityCheck[T comparable](
 ) {
 	t.Helper()
 
-	//var err error
-	//var value T = getenvFunc(name)
 	value, err := getenvFunc(name).Value()
 
 	var underlyingErr error
