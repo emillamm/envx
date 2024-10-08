@@ -1,10 +1,13 @@
 package envx
 
-import "testing"
+import (
+	"testing"
+	"errors"
+)
 
 func testGetenv[T comparable](
 	t testing.TB,
-	getenvFunc func(string, ...EnvXHandler[T])T,
+	getenvFunc func(string)*Value[T],
 	name string,
 	expectedValue T,
 	expectedError error,
@@ -17,7 +20,7 @@ func testGetenv[T comparable](
 
 func testGetenvWithEqualityCheck[T comparable](
 	t testing.TB,
-	getenvFunc func(string, ...EnvXHandler[T])T,
+	getenvFunc func(string)*Value[T],
 	name string,
 	expectedValue T,
 	expectedError error,
@@ -25,10 +28,14 @@ func testGetenvWithEqualityCheck[T comparable](
 ) {
 	t.Helper()
 
-	var err error
-	var value T = getenvFunc(name, Intercept[T](&err))
+	value, err := getenvFunc(name).Value()
 
-	if err != expectedError {
+	var underlyingErr error
+	if err != nil {
+		underlyingErr = err.(Error).Err // cast to Error - we should always expect the underlying error of being this type
+	}
+
+	if !errors.Is(expectedError, underlyingErr) {
 		t.Errorf("unenexpected error for %s: got %#v, want %#v", name, err, expectedError)
 	}
 

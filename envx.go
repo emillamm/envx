@@ -2,29 +2,50 @@ package envx
 
 type EnvX func(string)string
 
-type EnvXAny[T comparable] func(string)(T, error)
-
-type EnvXHandler[T comparable] func(string, T, error) (T, error)
-
-func (env EnvXAny[T]) Getenv(name string, handlers ...EnvXHandler[T]) T {
-	v, err := env(name)
-	for _, handler := range handlers {
-		v, err = handler(name, v, err)
-	}
-	return v
+type Value[T comparable] struct {
+	name string
+	err error
+	value *T
 }
 
-func as[T comparable](env EnvX, conv func(string)(T,error)) EnvXAny[T] {
-	return func(name string) (T, error) {
-		v := env(name)
-		if v == "" {
-			return *new(T), ErrEmptyValue
-		}
-		converted, err := conv(v)
-		if err != nil {
-			return converted, ErrInvalidType
-		}
-		return converted, nil
+func (v *Value[T]) Value() (T, error) {
+	var err error
+	var value T
+	if v.value != nil {
+		value = *v.value
 	}
+	if v.err != nil {
+		err = NewError[T](v.err, v.name, value)
+	}
+	return value, err
+}
+
+func (v *Value[T]) Default(value T) (T, error) {
+	if v.err == ErrEmptyValue {
+		return value, nil
+	}
+	return v.Value()
+}
+
+func getValue[T comparable](name string, env EnvX, conv func(string)(T,error)) *Value[T] {
+
+	v := Value[T]{
+		name: name,
+	}
+
+	rawValue := env(name)	
+
+	if rawValue != "" {
+		value, err := conv(rawValue)
+		if err != nil {
+			v.err = ErrInvalidType
+		} else {
+			v.value = &value
+		}
+	} else {
+		v.err = ErrEmptyValue
+	}
+
+	return &v
 }
 
