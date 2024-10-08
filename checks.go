@@ -1,6 +1,6 @@
 package envx
 
-import "cmp"
+import "fmt"
 
 type Checks struct {
 	Errs []Error
@@ -15,19 +15,16 @@ func (c Checks) Err() error {
 	}
 }
 
-func Check[T comparable](checks Checks, entry *Value[T]) T {
-	value, err := entry.Value()
-	if err != nil {
-		checks.Errs = append(checks.Errs, err.(Error))
+func Check[T comparable](t T, err error) func(Checks)T {
+	return func(checks Checks) T {
+		if err != nil {
+			if checks.Errs == nil {
+				s := []Error{}
+				checks.Errs = &s
+			}
+			*checks.Errs = append(*checks.Errs, err.(Error))
+		}
+		return t
 	}
-	return value
-}
-
-func (c Checks) Ch(entry *Value[cmp.Ordered]) {
-	value, err := entry.Value()
-	if err != nil {
-		checks.Errs = append(checks.Errs, err.(Error))
-	}
-	return value
 }
 

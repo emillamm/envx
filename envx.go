@@ -1,40 +1,101 @@
 package envx
 
-import "sync"
+//import "sync"
 
 type EnvX func(string)string
 
 func getValue[T comparable](name string, env EnvX, conv func(string)(T,error)) *Value[T] {
-	e := Value[T]{}
-	var initOnce sync.Once
-	e.init = func() {
-		initOnce.Do(func () {
-			e.raw = env(name)
-			if e.raw == "" {
-				e.err = NewError[T](ErrEmptyValue, name, e.value)
-				return
-			}
-			value, err := conv(e.raw)
-			e.value = value
-			// for security regetValueons, don't include regetValueon behind the invalid type
-			if err != nil {
-				e.err = NewError[T](ErrInvalidType, name, value)
-			}
-		})
+	//e := Value[T]{}
+	//var initOnce sync.Once
+	//e.init = func() {
+	//	initOnce.Do(func () {
+	//		e.raw = env(name)
+	//		if e.raw == "" {
+	//			e.err = NewError[T](ErrEmptyValue, name, e.value)
+	//			return
+	//		}
+	//		value, err := conv(e.raw)
+	//		e.value = value
+	//		// for security regetValueons, don't include regetValueon behind the invalid type
+	//		if err != nil {
+	//			e.err = NewError[T](ErrInvalidType, name, value)
+	//		}
+	//	})
+	//}
+	//return &e
+
+
+	//v := Value[T]{}
+	//v.raw = env(name)
+	//if v.raw == "" {
+	//	v.err = NewError[T](ErrEmptyValue, name, v.value)
+	//	return &v
+	//}
+	//value, err := conv(v.raw)
+	//v.value = value
+	//// for security reasons, don't include underlying invalid type error
+	//if err != nil {
+	//	v.err = NewError[T](ErrInvalidType, name, value)
+	//}
+	//return &v
+
+	//value := Value[T]{}
+	rawValue := env(name)	
+	//var value *T
+	//var err error
+
+	v := Value[T]{
+		name: name,
 	}
-	return &e
+
+	if rawValue != "" {
+		value, err := conv(rawValue)
+		if err != nil {
+			v.err = ErrInvalidType
+		} else {
+			v.value = &value
+		}
+	} else {
+		v.err = ErrEmptyValue
+	}
+
+	//return &Value[T]{
+	//	name: name,
+	//	err: err,
+	//	value: value,
+	//}
+	return &v
 }
 
 type Value[T comparable] struct {
-	raw string
+	name string
+	//raw string
+	//conv func(string)
 	err error
-	value T
-	init func()
+	value *T
+	//init func()
 }
 
-func (e *Value[T]) Value() (T, error) {
-	e.init()
-	return e.value, e.err
+func (v *Value[T]) Value() (T, error) {
+	//e.init()
+	var err error
+	var value T
+	if v.value != nil {
+		value = *v.value
+	}
+	if v.err != nil {
+		err = NewError[T](v.err, v.name, value)
+	}
+	return value, err
+}
+
+// TODO
+func (v *Value[T]) Default(value T) (T, error) {
+	//e.init()
+	if v.err == ErrEmptyValue {
+		return value, nil
+	}
+	return v.Value()
 }
 
 //func (e *Value[T]) Err() error {
@@ -42,10 +103,10 @@ func (e *Value[T]) Value() (T, error) {
 //	return e.err
 //}
 
-func (e *Value[T]) Raw() string {
-	e.init()
-	return e.raw
-}
+//func (e *Value[T]) Raw() string {
+//	//e.init()
+//	return e.raw
+//}
 
 //func (e EnvX) Getenv(name string) string {
 //	return e(name)

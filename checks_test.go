@@ -1,9 +1,6 @@
 package envx
 
-import (
-	//"errors"
-	"testing"
-)
+import "testing"
 
 func TestChecks(t *testing.T) {
 
@@ -22,40 +19,51 @@ func TestChecks(t *testing.T) {
 
 	t.Run("checks.Err() should initially be nil" , func(t *testing.T) {
 		var checks Checks
-		if err := checks.Err(); err != nil {
-			t.Errorf("got %v, want nil", err)
+		if err := checks.Err(); err != nil || len(checks.Errs) > 0 {
+			t.Errorf("got (%v, %v), want (nil, 0)", err, len(checks.Errs))
 		}
 	})
 
 	t.Run("checks.Err() be nil if no errors are returned in the checks" , func(t *testing.T) {
 		var checks Checks
-		if v := Check(checks, env.Int("FOO")); v != 917 {
+
+		if v := Check(env.Int("FOO"), &checks); v != 917 {
 			t.Errorf("got %v, want 917", v)
 		}
-		if v := Check(checks, env.String("BAZ")); v != "ABC" {
+
+		if v := Check(env.String("BAZ"), &checks); v != "ABC" {
 			t.Errorf("got %v, want ABC", v)
+		}
+
+		if err := checks.Err(); err != nil || len(checks.Errs) > 0 {
+			t.Errorf("got (%v, %v), want (nil, 0)", err, len(checks.Errs))
 		}
 	})
 
-	//t.Run("checks.Err() be not be nil if errors are returned in the checks" , func(t *testing.T) {
-	//	var checks Checks
-	//	checks.Check(env
-	//}
+	t.Run("checks.Err() be not be nil if errors are returned in the checks" , func(t *testing.T) {
+		var checks Checks
 
-	//t.Run("Default should return a default value if a variable doesn't exist and unset the error" , func(t *testing.T) {
-	//	if v, err := Default[string]("bar")("FOO", "", ErrEmptyValue); v != "bar" || err != nil {
-	//		t.Errorf("unenexpected value/error: got ('%s','%#v'), want ('bar','nil')", v, err)
-	//	}
-	//})
-	//t.Run("Default should return existing value if a variable already exist leave the error unchanged" , func(t *testing.T) {
-	//	if v, err := Default[string]("bar")("FOO", "foo", nil); v != "foo" || err != nil {
-	//		t.Errorf("unenexpected value/error: got ('%s','%#v'), want ('bar','nil')", v, err)
-	//	}
-	//	someError := errors.New("some error")
-	//	if v, err := Default[string]("bar")("FOO", "foo", someError); v != "foo" || err != someError {
-	//		t.Errorf("unenexpected value/error: got ('%s','%#v'), want ('foo','nil')", v, err)
-	//	}
-	//})
+		// not resulting in errors
+		Check(env.Int("FOO"), &checks)
+		Check(env.String("BAZ"), &checks)
 
-	//t.Run("Intercept should point to the provided error if the pointer is empty" , func(t *testing.T) {
+		//var checks2 Checks2
+
+		//s := Check2(env.String("FOO1").Value())(checks2)
+
+
+		// resulting in errors
+		if v := Check(env.Int("BAR"), &checks); v != 0 {
+			t.Errorf("got %v, want 0", v)
+		}
+
+		if v := Check(env.String("XYZ"), &checks); v != "" {
+			t.Errorf("got %v, want ABC", v)
+		}
+
+		if err := checks.Err(); err == nil || len(checks.Errs) != 2 {
+			t.Errorf("got (%v, %v), want (AggregateError, 2)", err, len(checks.Errs))
+		}
+	})
 }
+
