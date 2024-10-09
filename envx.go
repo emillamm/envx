@@ -1,3 +1,20 @@
+// Package envx provides a set of helper methods that simplifies comsuming environment variables in your go programs.
+// It introduces a type definition, EnvX, which has the same signature as os.Getenv. EnvX has several several methods that allows you to read and parse environment variables of different types.
+//
+// Example:
+// ```
+// // Create an `EnvX` type reference to `os.Getenv`
+// var env envx.EnvX = os.Getenv
+//
+// // Returns the value of FOO parsed as an int.
+// // If FOO can't be parsed as an int, it returns ErrInvalidType
+// // If FOO doesn't exist, it returns ErrEmptyValue
+// i, err := env.Int("FOO").Value()
+//
+// // Returns the value of BAR as a string.
+// // If BAR doesn't exist, it returns the default value "apple" instead.
+// j, err := env.String("BAR").Default("apple")
+// ```
 package envx
 
 type EnvX func(string)string
@@ -33,7 +50,7 @@ func getValue[T comparable](name string, env EnvX, conv func(string)(T,error)) *
 		name: name,
 	}
 
-	rawValue := env(name)	
+	rawValue := env(name)
 
 	if rawValue != "" {
 		value, err := conv(rawValue)
