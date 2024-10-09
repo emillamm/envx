@@ -30,13 +30,8 @@ func testGetenvWithEqualityCheck[T comparable](
 
 	value, err := getenvFunc(name).Value()
 
-	var underlyingErr error
-	if err != nil {
-		underlyingErr = err.(Error).Err // cast to Error - we should always expect the underlying error of being this type
-	}
-
-	if !errors.Is(expectedError, underlyingErr) {
-		t.Errorf("unenexpected error for %s: got %#v, want %#v", name, err, expectedError)
+	if !errors.Is(err, expectedError) {
+		t.Errorf("unenexpected error for %s: got %v, want %v", name, err, expectedError)
 	}
 
 	if !equalityCheck(value, expectedValue) {
