@@ -1,7 +1,7 @@
 package envx
 
-// Checks represents a temporary aggregation of multiple Error that can be converted to an AggregateError type.
-type Checks []Error
+// Checks represents a temporary aggregation of multiple errors that can be converted to an AggregateError type.
+type Checks []error
 
 func NewChecks() *Checks {
 	return &Checks{}
@@ -20,10 +20,10 @@ func Check[T comparable](t T, err error) func(*Checks)T {
 	return func(checks *Checks) T {
 		if err != nil {
 			if checks == nil {
-				s := []Error{}
+				s := []error{}
 				*checks = s
 			}
-			*checks = append(*checks, err.(Error))
+			*checks = append(*checks, err)
 		}
 		return t
 	}

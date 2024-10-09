@@ -3,30 +3,15 @@ package envx
 import (
 	"fmt"
 	"strings"
+	"errors"
 )
 
-// Error - generic error type that represents all EnvX errors
-type Error struct {
-	Err error
-	Name string
-	Type string
-}
+var ErrEmptyValue = errors.New("environment variable does not exist")
+var ErrInvalidType = errors.New("environment variable could not be converted to expected typek")
 
-func NewError[T comparable](err error, name string, value T) Error {
-	return Error{
-		Err: err,
-		Name: name,
-		Type: fmt.Sprintf("%T", value),
-	}
-}
-
-func (e Error) Error() string {
-	return fmt.Sprintf("Error reading environment variable '%s' with type '%s': %s", e.Name, e.Type, e.Err)
-}
-
-// AggregateError - the error type that represents an aggregation of multiple Error
+// AggregateError - the error type that represents an aggregation of multiple errors
 type AggregateError struct {
-	Errs []Error
+	Errs []error
 }
 
 func (e *AggregateError) Error() string {
@@ -40,23 +25,4 @@ func (e *AggregateError) Error() string {
 	}
 	return b.String()
 }
-
-
-// EmptyValueError
-type EmptyValueError struct {}
-const EmptyValueErrorMsg = "environment variable does not exist"
-func (e *EmptyValueError) Error() string {
-	return EmptyValueErrorMsg
-}
-var ErrEmptyValue = &EmptyValueError{}
-
-
-// InvalidTypeError
-type InvalidValueTypeError struct {}
-const InvalidValueTypeErrorMsg = "environment variable could not be converted to expected type"
-
-func (e *InvalidValueTypeError) Error() string {
-	return InvalidValueTypeErrorMsg
-}
-var ErrInvalidType = &InvalidValueTypeError{}
 

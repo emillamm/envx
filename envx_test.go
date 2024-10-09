@@ -1,6 +1,9 @@
 package envx
 
-import "testing"
+import (
+	"errors"
+	"testing"
+)
 
 func TestEnvX(t *testing.T) {
 
@@ -20,13 +23,13 @@ func TestEnvX(t *testing.T) {
 	})
 
 	t.Run("Value() should return ErrEmptyValue if the variable doesn't exists" , func(t *testing.T) {
-		if v, err := env.String("BAR").Value(); v != "" || err == nil || err.(Error).Err != ErrEmptyValue {
+		if v, err := env.String("BAR").Value(); v != "" || err == nil || !errors.Is(err, ErrEmptyValue) {
 			t.Errorf("got (%v, %#v), want ('', ErrEmptyValue)", v, err)
 		}
 	})
 
 	t.Run("Value() should return ErrInvalidType if the variable can't be converted to the correct type" , func(t *testing.T) {
-		if v, err := env.Int("FOO").Value(); v != 0 || err == nil || err.(Error).Err != ErrInvalidType {
+		if v, err := env.Int("FOO").Value(); v != 0 || err == nil || !errors.Is(err, ErrInvalidType) {
 			t.Errorf("got (%v, %#v), want (0, ErrInvalidType)", v, err)
 		}
 	})
