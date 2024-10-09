@@ -1,7 +1,8 @@
 # EnvX
-EnvX is a zero-dependency, lightweight, Go module that simplifies using environment variables in your go programs. It decorates `os.Getenv` with helper methods that reduces the need for boiler plate code when reading and parsing environment variables.
+EnvX is a zero-dependency, lightweight, Go module that simplifies reading environment variables in your go programs.
 
 ## Usage
+EnvX decorates `os.Getenv` with helper methods that reduces the need for boiler plate code when reading and parsing environment variables.
 
 ### Reading and parsing environment variables
 The following example demonstrates you can use EnvX to read environment variables of various types in Go code.
@@ -27,7 +28,7 @@ func PrintEnv(env envx.EnvX) {
     // BAZ doesn't exist, returns ErrEmptyValue wrapped in a descriptive error
     k, err := env.Int("BAZ").Value()
     println(k)      // 0
-    println(err)    // Error reading environment variable 'FOO' with type 'string': environment variable does not exist
+    println(err)    // Error reading environment variable 'BAZ' with type 'int': environment variable does not exist
 
     // BAZ doesn't exist, returns provided default value
     l, err := env.Int("BAZ").Default(88)
@@ -53,7 +54,7 @@ func GetConnection(env envx.EnvX) (*Connection, error) {
 
     // By wrapping each read statement inside a "envx.Check(...)(checks)" expression
     // we are able to capture errors for later processing.
-	host := envx.Check(env.String("HOST").Default("localhost"))(checks)
+    host := envx.Check(env.String("HOST").Default("localhost"))(checks)
 	port := envx.Check(env.Int("PORT").Default(8080))(checks)
 	user := envx.Check(env.String("USER").Default("postgres"))(checks)
 	pass := envx.Check(env.String("PASSWORD").Default("postgres"))(checks)
@@ -72,4 +73,11 @@ func GetConnection(env envx.EnvX) (*Connection, error) {
     }
 }
 ```
+
+## Supported types
+
+* String
+* Int
+* time.Time
+* time.Duration
 
