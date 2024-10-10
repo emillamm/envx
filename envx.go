@@ -10,52 +10,47 @@ type EnvX func(string)string
 type Value[T comparable] struct {
 	// Name is the name (or key) of the environment variable
 	Name string
-	err error
-	value *T
+	read func()(T,error)
 }
 
-func (v *Value[T]) Value() (T, error) {
-	var err error
-	var value T
-	if v.value != nil {
-		value = *v.value
+func (v *Value[T]) Value() (t T, err error) {
+	t, err = v.read()
+	if err != nil {
+		err = wrapError(v.Name, t, err)
 	}
-	if v.err != nil {
-		err = wrapError(v.Name, value, v.err)
-	}
-	return value, err
+	return
 }
 
 func wrapError[T comparable](name string, value T, err error) error {
 	return fmt.Errorf("Error reading environment variable '%s' with type '%T': %w", name, value, err)
 }
 
-func (v *Value[T]) Default(value T) (T, error) {
-	if v.err == ErrEmptyValue {
-		return value, nil
+func (v *Value[T]) Default(value T) (t T, err error) {
+	t, err = v.read()
+	if err == ErrEmptyValue {
+		t = value
+		err = nil
 	}
-	return v.Value()
+	return
 }
 
 func getValue[T comparable](name string, env EnvX, conv func(string)(T,error)) *Value[T] {
-
-	v := Value[T]{
-		Name: name,
-	}
-
-	rawValue := env(name)
-
-	if rawValue != "" {
-		value, err := conv(rawValue)
-		if err != nil {
-			v.err = ErrInvalidType
+	read := func() (t T, err error) {
+		rawValue := env(name)
+		if rawValue != "" {
+			t, err = conv(rawValue)
+			if err != nil {
+				err = ErrInvalidType
+			}
 		} else {
-			v.value = &value
+			err = ErrEmptyValue
 		}
-	} else {
-		v.err = ErrEmptyValue
+		return
 	}
 
-	return &v
+	return &Value[T]{
+		Name: name,
+		read: read,
+	}
 }
 
