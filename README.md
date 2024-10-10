@@ -8,10 +8,10 @@ EnvX decorates `os.Getenv` with helper methods that reduces the need for boiler 
 The following example demonstrates you can use EnvX to read environment variables of various types in Go code.
 
 ```
-import {
+import (
     "github.com/emillamm/envx"
     "os"
-}
+)
 
 func PrintEnv(env envx.EnvX) {
 
@@ -75,9 +75,5 @@ func GetConnection(env envx.EnvX) (*Connection, error) {
 ```
 
 ## Supported types
-
-* String
-* Int
-* time.Time
-* time.Duration
+Review the docs to learn which types EnvX natively supports.
 

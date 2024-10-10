@@ -1,6 +1,10 @@
 package envx
 
-import "testing"
+import (
+	"testing"
+	"os"
+	"fmt"
+)
 
 func TestEnvXInt(t *testing.T) {
 
@@ -44,5 +48,14 @@ func TestEnvXInt(t *testing.T) {
 			ErrInvalidType,		// expected error
 		)
 	})
+}
+
+func ExampleEnvX_Int() {
+	var env EnvX = os.Getenv
+	os.Setenv("FOO", "87")
+	v, err := env.Int("FOO").Value()
+	fmt.Printf("value: %v, error: %v", v, err)
+	// Output:
+	// value: 87, error: <nil>
 }
 

@@ -3,11 +3,13 @@ package envx
 
 import "fmt"
 
-// EnvX is a type definition that has the same signature as os.Getenv. It exposes several several methods that allows you to read and parse environment variables of different types.
+// EnvX is a type definition that has the same signature as [os.Getenv]. It exposes several several methods that allows you to read and parse environment variables of different types.
+// Each method returns a [Value] which in turn provides various methods to retrieve the value.
 type EnvX func(string)string
 
 type Value[T comparable] struct {
-	name string
+	// Name is the name (or key) of the environment variable
+	Name string
 	err error
 	value *T
 }
@@ -19,7 +21,7 @@ func (v *Value[T]) Value() (T, error) {
 		value = *v.value
 	}
 	if v.err != nil {
-		err = wrapError(v.name, value, v.err)
+		err = wrapError(v.Name, value, v.err)
 	}
 	return value, err
 }
@@ -38,7 +40,7 @@ func (v *Value[T]) Default(value T) (T, error) {
 func getValue[T comparable](name string, env EnvX, conv func(string)(T,error)) *Value[T] {
 
 	v := Value[T]{
-		name: name,
+		Name: name,
 	}
 
 	rawValue := env(name)
