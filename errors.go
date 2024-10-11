@@ -7,7 +7,7 @@ import (
 )
 
 var ErrEmptyValue = errors.New("environment variable does not exist")
-var ErrInvalidType = errors.New("environment variable could not be converted to expected typek")
+var ErrInvalidType = errors.New("environment variable could not be converted to expected type")
 
 // AggregateError - the error type that represents an aggregation of multiple errors
 type AggregateError struct {
