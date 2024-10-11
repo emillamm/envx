@@ -56,13 +56,11 @@ func GetConnection(env EnvX) (*Connection, error) {
 		return nil, err
 	}
 
-	con := Connection{
+	return &Connection{
 		Host: host,
 		Port: port,
 		User: user,
 		Pass: pass,
-	}
-
-	return &con, nil
+	}, nil
 }
 
