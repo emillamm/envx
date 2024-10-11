@@ -3,6 +3,11 @@
 
 EnvX is a zero-dependency, lightweight, Go module that simplifies reading environment variables in your go programs. It reduces the need for boiler plate code when parsing environment variables into desired types.
 
+## Installation
+```
+go get github.com/emillamm/envx
+```
+
 ## Usage
 ### Input source
 `EnvX` is just a type definition of `func(string)string`. It has the same signature as `os.Getenv`.
