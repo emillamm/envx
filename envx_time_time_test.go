@@ -1,6 +1,8 @@
 package envx
 
 import (
+	"fmt"
+	"os"
 	"testing"
 	"time"
 )
@@ -70,4 +72,17 @@ func TestEnvXTime(t *testing.T) {
 	})
 }
 
+func ExampleEnvX_Time() {
+	os.Setenv("FOO_TIME", "2006-01-02T15:04:05Z")
+
+	var env EnvX = os.Getenv
+	var value time.Time
+	var err error
+
+	value, err = env.Time("FOO_TIME", time.RFC3339).Value()
+
+	fmt.Printf("value: %v, error: %v", value, err)
+	// Output:
+	// value: 2006-01-02 15:04:05 +0000 UTC, error: <nil>
+}
 

@@ -1,6 +1,8 @@
 package envx
 
 import (
+	"fmt"
+	"os"
 	"testing"
 	"time"
 )
@@ -10,7 +12,7 @@ func TestEnvXDuration(t *testing.T) {
 	var env EnvX = func(name string) string {
 		switch name {
 		case "FOO":
-			return "10h"
+			return "5h31m"
 		case "BAR":
 			return "1INVALID987"
 		default:
@@ -21,10 +23,10 @@ func TestEnvXDuration(t *testing.T) {
 	t.Run("Getenv should return the value and provide no errors if the variable exists" , func(t *testing.T) {
 		testGetenv[time.Duration](
 			t,
-			env.Duration,	// target func
-			"FOO",				// variable name
-			10 * time.Hour,			// expected value
-			nil,				// expected error
+			env.Duration,				// target func
+			"FOO",					// variable name
+			5 * time.Hour + 31 * time.Minute,	// expected value
+			nil,					// expected error
 		)
 	})
 
@@ -47,5 +49,19 @@ func TestEnvXDuration(t *testing.T) {
 			ErrInvalidType,			// expected error
 		)
 	})
+}
+
+func ExampleEnvX_Duration() {
+	os.Setenv("FOO_DURATION", "5h31m")
+
+	var env EnvX = os.Getenv
+	var value time.Duration
+	var err error
+
+	value, err = env.Duration("FOO_DURATION").Value()
+
+	fmt.Printf("value: %v, error: %v", value, err)
+	// Output:
+	// value: 5h31m0s, error: <nil>
 }
 
