@@ -1,6 +1,11 @@
 package envx
 
-import "testing"
+import (
+	"errors"
+	"fmt"
+	"os"
+	"testing"
+)
 
 func TestEnvXString(t *testing.T) {
 
@@ -32,5 +37,24 @@ func TestEnvXString(t *testing.T) {
 			ErrEmptyValue,		// expected error
 		)
 	})
+}
+
+func ExampleEnvX_String() {
+	os.Setenv("FOO_STRING", "apple")
+
+	var env EnvX = os.Getenv
+	var value string
+	var err error
+
+	value, err = env.String("FOO_STRING").Value() // value is apple, err is nil
+	fmt.Printf("value: %v, error: %v\n", value, err)
+
+	value, err = env.String("BAR_STRING").Value() // BAR does not exist: value is "", err is ErrEmptyValue
+	fmt.Printf("value: %v, error: %v\n", value, err)
+	fmt.Printf("error is ErrEmptyValue: %v\n", errors.Is(err, ErrEmptyValue))
+	// Output:
+	// value: apple, error: <nil>
+	// value: , error: Error reading environment variable 'BAR_STRING' with type 'string': environment variable does not exist
+	// error is ErrEmptyValue: true
 }
 

@@ -51,10 +51,15 @@ func TestEnvXInt(t *testing.T) {
 }
 
 func ExampleEnvX_Int() {
+	os.Setenv("FOO_INT", "87")
+
 	var env EnvX = os.Getenv
-	os.Setenv("FOO", "87")
-	v, err := env.Int("FOO").Value()
-	fmt.Printf("value: %v, error: %v", v, err)
+	var value int
+	var err error
+
+	value, err = env.Int("FOO_INT").Value()
+
+	fmt.Printf("value: %v, error: %v", value, err)
 	// Output:
 	// value: 87, error: <nil>
 }
