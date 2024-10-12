@@ -7,6 +7,32 @@ import (
 	"os"
 )
 
+func GetConnection(env EnvX) (*Connection, error) {
+
+	// This variable will accumulate errors that arise from reading the following environment variables
+	checks := NewChecks()
+
+	// By wrapping each read statement inside a "envx.Check(...)(checks)" expression
+	// we are able to capture errors for later processing.
+	host := Check(env.String("HOST_TEST").Default("localhost"))(checks)
+	port := Check(env.Int("PORT_TEST").Default(8080))(checks)
+	user := Check(env.String("USER_TEST").Value())(checks)
+	pass := Check(env.String("PASSWORD_TEST").Value())(checks)
+
+	// If any errors were encountered, "checks.Err()" will return a descriptive error
+	// that summarizes all the underlying errors. Otherwise it returns nil.
+	if err := checks.Err(); err != nil {
+		return nil, err
+	}
+
+	return &Connection{
+		Host: host,
+		Port: port,
+		User: user,
+		Pass: pass,
+	}, nil
+}
+
 func Example_checks() {
 
 	connection, err := GetConnection(os.Getenv)
@@ -36,31 +62,5 @@ type Connection struct {
 	Port int
 	User string
 	Pass string
-}
-
-func GetConnection(env EnvX) (*Connection, error) {
-
-	// This variable will accumulate errors that arise from reading the following environment variables
-	checks := NewChecks()
-
-	// By wrapping each read statement inside a "envx.Check(...)(checks)" expression
-	// we are able to capture errors for later processing.
-	host := Check(env.String("HOST_TEST").Default("localhost"))(checks)
-	port := Check(env.Int("PORT_TEST").Default(8080))(checks)
-	user := Check(env.String("USER_TEST").Value())(checks)
-	pass := Check(env.String("PASSWORD_TEST").Value())(checks)
-
-	// If any errors were encountered, "checks.Err()" will return a descriptive error
-	// that summarizes all the underlying errors. Otherwise it returns nil.
-	if err := checks.Err(); err != nil {
-		return nil, err
-	}
-
-	return &Connection{
-		Host: host,
-		Port: port,
-		User: user,
-		Pass: pass,
-	}, nil
 }
 

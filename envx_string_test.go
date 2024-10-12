@@ -50,11 +50,11 @@ func ExampleEnvX_String() {
 	fmt.Printf("value: %v, error: %v\n", value, err)
 
 	value, err = env.String("BAR_STRING").Value() // BAR does not exist: value is "", err is ErrEmptyValue
-	fmt.Printf("value: %v, error: %v\n", value, err)
+	fmt.Printf("value: %#v, error: %v\n", value, err)
 	fmt.Printf("error is ErrEmptyValue: %v\n", errors.Is(err, ErrEmptyValue))
 	// Output:
 	// value: apple, error: <nil>
-	// value: , error: Error reading environment variable 'BAR_STRING' with type 'string': environment variable does not exist
+	// value: "", error: Error reading environment variable 'BAR_STRING' with type 'string': environment variable does not exist
 	// error is ErrEmptyValue: true
 }
 

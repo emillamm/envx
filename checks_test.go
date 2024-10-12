@@ -1,6 +1,10 @@
 package envx
 
-import "testing"
+import (
+	"fmt"
+	"os"
+	"testing"
+)
 
 func TestChecks(t *testing.T) {
 
@@ -60,5 +64,28 @@ func TestChecks(t *testing.T) {
 			t.Errorf("got (%v, %v), want (AggregateError, 2)", err, len(*checks))
 		}
 	})
+}
+
+func ExampleCheck() {
+
+	// Initialize env and checks
+	var env EnvX = os.Getenv
+	checks := NewChecks()
+
+	// Intercepts ErrEmptyValue
+	str := Check(env.String("NON_EXISTING_STRING").Value())(checks)
+
+	// Intercepts ErrInvalidType
+	os.Setenv("INVALID_INT", "A1Q")
+	i := Check(env.Int("INVALID_INT").Value())(checks)
+
+	fmt.Printf("Returned values str: %#v, i: %v\n", str, i)
+	fmt.Print(checks.Err())
+
+	// Output:
+	// Returned values str: "", i: 0
+	// Unable to read 2 environment variable(s):
+	// Error reading environment variable 'NON_EXISTING_STRING' with type 'string': environment variable does not exist
+	// Error reading environment variable 'INVALID_INT' with type 'int': environment variable could not be converted to expected type
 }
 
