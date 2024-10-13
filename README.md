@@ -15,7 +15,7 @@ go get github.com/emillamm/envx
 var env EnvX = os.Getenv
 ```
 
-It can use any function as input, it doesn't have to be `os.Getenv`. 
+It can use any function as input, it doesn't have to be `os.Getenv`. This abstraction can be helpful when managing configuration in tests.
 ```Go
 var env EnvX = func(name string) string {
         switch name {
@@ -31,7 +31,7 @@ var env EnvX = func(name string) string {
 ```
 
 ### Reading variables
-`EnvX` is decorated with helper method for reading `string` data and parsing it to various types
+`EnvX` is decorated with helper method for reading raw string data and parsing it to various types
 ```Go
 // Return string
 str, err := env.String("MY_STRING").Value()
