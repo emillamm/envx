@@ -44,28 +44,23 @@ timestamp, err := env.Time("MY_TIMESTAMP", time.RFC3339).Value()
 ```
 
 ### Errors
-A descriptive error is returned if the environment variable doesn't exist
+A descriptive error is returned if the environment variable doesn't exist.  Use `errors.Is` to check the type of error.
 
+For non-existing environment variables, the returned error wraps `ErrEmptyValue`.
 ```
 i, err := env.Int("NON_EXISTING_VAR").Value()
+
+errors.Is(err, ErrEmptyValue) // true
+
 fmt.Println(i)      // 0
 fmt.Println(err)    // Error reading environment variable 'NON_EXISTING_VAR' with type 'int': environment variable does not exist
 ```
 
-Use `errors.Is` to check the type of error. For non-existing environment variables, the returned error wraps `ErrEmptyValue`.
-```
-i, err := env.Int("NON_EXISTING_VAR").Value()
-if errors.Is(err, ErrEmptyValue) {
-    fmt.Println("Doesn't exist")
-}
-```
-
-If the underlying string can't be parsed to the desired type, the returned error wraps `ErrInvalidType`.
+For parsing errors, the returned error wraps `ErrInvalidType`.
 ```
 i, err := env.Int("NOT_AN_INT").Value()
-if errors.Is(err, ErrInvalidType) {
-    fmt.Printf("%v could not be parsed as an int", v)
-}
+
+errors.Is(err, ErrInvalidType) // true
 
 fmt.Println(i)      // 0
 fmt.Println(err)    // Error reading environment variable 'NOT_AN_INT' with type 'int': environment variable could not be converted to expected type
