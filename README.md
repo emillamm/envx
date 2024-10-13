@@ -11,12 +11,12 @@ go get github.com/emillamm/envx
 ## Usage
 ### Input source
 `EnvX` is just a type definition of `func(string)string`. It has the same signature as `os.Getenv`.
-```
+```Go
 var env EnvX = os.Getenv
 ```
 
 It can use any function as input, it doesn't have to be `os.Getenv`. 
-```
+```Go
 var env EnvX = func(name string) string {
         switch name {
         case "MY_TIMESTAMP":
@@ -32,7 +32,7 @@ var env EnvX = func(name string) string {
 
 ### Reading variables
 `EnvX` is decorated with helper method for reading `string` data and parsing it to various types
-```
+```Go
 // Return string
 str, err := env.String("MY_STRING").Value()
 
@@ -47,7 +47,7 @@ timestamp, err := env.Time("MY_TIMESTAMP", time.RFC3339).Value()
 A descriptive error is returned if the environment variable doesn't exist.  Use `errors.Is` to check the type of error.
 
 For non-existing environment variables, the returned error wraps `ErrEmptyValue`.
-```
+```Go
 i, err := env.Int("NON_EXISTING_VAR").Value()
 
 errors.Is(err, ErrEmptyValue) // true
@@ -71,7 +71,7 @@ fmt.Println(err)    // Error reading environment variable 'NOT_AN_INT' with type
 
 
 `.Default(...)` behaves the same way, except that it falls back to default value instead of returning `ErrEmptyValue`.
-```
+```Go
 i, err := env.Int("NON_EXISTING_VAR").Default(844)
 fmt.Println(i)      // 844
 fmt.Println(err)    // <nil>
@@ -80,7 +80,7 @@ fmt.Println(err)    // <nil>
 ### Deferred error handling
 When reading multiple environment variables, it can be cumbersome to check each error along the way. `envx.Check`is a helper function that simplifies error handling when reading a batch of environment variables by summarizing all errors into a single error.
 
-```
+```Go
 func GetConnection(env envx.EnvX) (*Connection, error) {
 
     // This variable will accumulate errors that arise from reading the following environment variables
